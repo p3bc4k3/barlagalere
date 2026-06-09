@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, type Variant } from "framer-motion";
-import { type ReactNode } from "react";
+import { motion, useInView } from "framer-motion";
+import { useRef, type ReactNode } from "react";
 
 interface FadeInProps {
   children: ReactNode;
@@ -9,75 +9,54 @@ interface FadeInProps {
   duration?: number;
   direction?: "up" | "down" | "left" | "right" | "none";
   className?: string;
-  once?: boolean;
 }
-
-const directionOffset = {
-  up: { y: 24 },
-  down: { y: -24 },
-  left: { x: 24 },
-  right: { x: -24 },
-  none: {},
-};
 
 export function FadeIn({
   children,
   delay = 0,
-  duration = 0.5,
+  duration = 0.6,
   direction = "up",
   className,
-  once = true,
 }: FadeInProps) {
-  const hidden: Variant = {
-    opacity: 0,
-    ...directionOffset[direction],
-  };
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
 
-  const visible: Variant = {
-    opacity: 1,
-    x: 0,
-    y: 0,
-  };
+  const offset = { up: 32, down: -32, left: 32, right: -32, none: 0 };
+  const axis = direction === "left" || direction === "right" ? "x" : "y";
 
   return (
     <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once }}
-      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
-      variants={{ hidden, visible }}
+      ref={ref}
       className={className}
+      initial={{ opacity: 0, [axis]: offset[direction] }}
+      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
+      transition={{ duration, delay, ease: [0.25, 0.1, 0.25, 1] }}
     >
       {children}
     </motion.div>
   );
 }
 
-interface StaggerProps {
-  children: ReactNode;
-  staggerDelay?: number;
-  className?: string;
-}
-
 export function StaggerContainer({
   children,
-  staggerDelay = 0.1,
   className,
-}: StaggerProps) {
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
   return (
     <motion.div
+      ref={ref}
+      className={className}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-40px" }}
+      animate={isInView ? "visible" : "hidden"}
       variants={{
         hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: staggerDelay,
-          },
-        },
+        visible: { transition: { staggerChildren: 0.12 } },
       }}
-      className={className}
     >
       {children}
     </motion.div>
@@ -93,15 +72,15 @@ export function StaggerItem({
 }) {
   return (
     <motion.div
+      className={className}
       variants={{
         hidden: { opacity: 0, y: 24 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+          transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
         },
       }}
-      className={className}
     >
       {children}
     </motion.div>

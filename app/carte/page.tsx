@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Wine, IceCream, Waves, GlassWater } from "lucide-react";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { cn } from "@/lib/utils";
@@ -289,36 +290,14 @@ function MenuCard({
 
 export default function CartePage() {
   const [activeTab, setActiveTab] = useState<CategoryId>("cocktails");
-  const sectionRefs = useRef<Record<CategoryId, HTMLElement | null>>({
-    cocktails: null,
-    "sans-alcool": null,
-    glacier: null,
-    boissons: null,
-  });
 
-  const scrollToSection = (id: CategoryId) => {
+  const switchTab = (id: CategoryId) => {
     setActiveTab(id);
-    const el = sectionRefs.current[id];
-    if (el) {
-      const offset = 120;
-      const top = el.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: "smooth" });
-    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY + 160;
-      for (const cat of categories) {
-        const el = sectionRefs.current[cat.id];
-        if (el && scrollY >= el.offsetTop) {
-          setActiveTab(cat.id);
-        }
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const activeCategory = categories.find((c) => c.id === activeTab)!;
+  const sections = menuData[activeTab];
 
   return (
     <div className="pt-16 min-h-screen">
@@ -347,19 +326,21 @@ export default function CartePage() {
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
           <nav
             className="flex gap-1 overflow-x-auto py-2 scrollbar-none"
+            role="tablist"
             aria-label="Catégories de la carte"
           >
             {categories.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => scrollToSection(id)}
+                role="tab"
+                aria-selected={activeTab === id}
+                onClick={() => switchTab(id)}
                 className={cn(
-                  "flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer",
+                  "relative flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer",
                   activeTab === id
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
-                aria-current={activeTab === id ? "true" : undefined}
               >
                 <Icon size={14} aria-hidden="true" />
                 {label}
@@ -369,60 +350,51 @@ export default function CartePage() {
         </div>
       </div>
 
-      {/* Menu sections */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-12 space-y-20">
-        {categories.map(({ id, label, icon: Icon }) => {
-          const sections = menuData[id];
-          return (
-            <section
-              key={id}
-              id={id}
-              ref={(el) => {
-                sectionRefs.current[id] = el;
-              }}
-              aria-labelledby={`section-${id}`}
-            >
-              <FadeIn>
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Icon size={18} className="text-primary" aria-hidden="true" />
+      {/* Tab content */}
+      <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-12">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            {/* Section header */}
+            <div className="flex items-center gap-3 mb-10">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <activeCategory.icon size={18} className="text-primary" aria-hidden="true" />
+              </div>
+              <h2 className="font-heading text-2xl font-semibold">
+                {activeCategory.label}
+              </h2>
+            </div>
+
+            {/* Sub-sections */}
+            <div className="space-y-1">
+              {sections.map((section) => (
+                <div key={section.title}>
+                  <SectionDivider title={section.title} />
+                  <div className="rounded-2xl border border-border bg-card px-6 md:px-8">
+                    {section.items.map((item, i) => (
+                      <MenuCard
+                        key={i}
+                        name={item.name}
+                        description={item.description}
+                        price={item.price}
+                        isLast={i === section.items.length - 1}
+                      />
+                    ))}
                   </div>
-                  <h2
-                    id={`section-${id}`}
-                    className="font-heading text-2xl font-semibold"
-                  >
-                    {label}
-                  </h2>
                 </div>
+              ))}
+            </div>
 
-                <div className="space-y-1">
-                  {sections.map((section) => (
-                    <div key={section.title}>
-                      <SectionDivider title={section.title} />
-                      <div className="rounded-2xl border border-border bg-card px-6 md:px-8">
-                        {section.items.map((item, i) => (
-                          <MenuCard
-                            key={i}
-                            name={item.name}
-                            description={item.description}
-                            price={item.price}
-                            isLast={i === section.items.length - 1}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </FadeIn>
-            </section>
-          );
-        })}
-
-        <FadeIn>
-          <p className="text-center text-xs text-muted-foreground py-4">
-            Tous nos prix sont indiqués en euros TTC · Carte susceptible d&apos;évoluer selon les saisons et les arrivages
-          </p>
-        </FadeIn>
+            <p className="text-center text-xs text-muted-foreground pt-10 pb-4">
+              Tous nos prix sont indiqués en euros TTC · Carte susceptible d&apos;évoluer selon les saisons
+            </p>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

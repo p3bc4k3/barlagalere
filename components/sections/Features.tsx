@@ -1,6 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Wine, IceCream, Waves } from "lucide-react";
-import { StaggerContainer, StaggerItem } from "@/components/animations/FadeIn";
-import { FadeIn } from "@/components/animations/FadeIn";
+import { StaggerContainer, StaggerItem, FadeIn } from "@/components/animations/FadeIn";
 
 const pillars = [
   {
@@ -50,19 +52,25 @@ export function Features() {
             const Icon = pillar.icon;
             return (
               <StaggerItem key={pillar.title}>
-                <div className="rounded-2xl border border-border bg-card p-8 h-full transition-shadow duration-200 hover:shadow-lg cursor-default">
-                  <div
-                    className={`w-12 h-12 rounded-full ${pillar.bg} flex items-center justify-center mb-6`}
-                  >
-                    <Icon size={22} className={pillar.color} aria-hidden="true" />
+                <motion.div
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  whileTap={{ scale: 0.98 }}
+                  className="h-full"
+                >
+                  <div className="rounded-2xl border border-border bg-card p-8 h-full transition-shadow duration-300 hover:shadow-lg hover:border-primary/40 cursor-default">
+                    <div
+                      className={`w-12 h-12 rounded-full ${pillar.bg} flex items-center justify-center mb-6`}
+                    >
+                      <Icon size={22} className={pillar.color} aria-hidden="true" />
+                    </div>
+                    <h3 className="font-heading text-xl font-semibold mb-3">
+                      {pillar.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {pillar.description}
+                    </p>
                   </div>
-                  <h3 className="font-heading text-xl font-semibold mb-3">
-                    {pillar.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {pillar.description}
-                  </p>
-                </div>
+                </motion.div>
               </StaggerItem>
             );
           })}
