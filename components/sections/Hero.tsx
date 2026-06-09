@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { OceanWaves } from "@/components/animations/OceanWaves";
+import { FloatingParticles } from "@/components/animations/FloatingParticles";
 
 export function Hero() {
   return (
@@ -10,7 +12,7 @@ export function Hero() {
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
       aria-label="La Galère — Bar Glacier Cocktail Valras-Plage"
     >
-      {/* Sunset over Mediterranean — CSS gradient placeholder */}
+      {/* Sunset over Mediterranean — CSS gradient */}
       <div
         className="absolute inset-0"
         aria-hidden="true"
@@ -36,21 +38,11 @@ export function Hero() {
         }}
       />
 
-      {/* Wave transition */}
-      <div className="absolute bottom-0 left-0 right-0" aria-hidden="true">
-        <svg
-          viewBox="0 0 1440 80"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 40 C360 0 720 80 1080 40 C1260 20 1380 60 1440 40 L1440 80 L0 80 Z"
-            fill="hsl(38, 76%, 97%)"
-          />
-        </svg>
-      </div>
+      {/* Floating particles */}
+      <FloatingParticles />
+
+      {/* Animated ocean waves at bottom */}
+      <OceanWaves />
 
       {/* Content */}
       <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
@@ -72,7 +64,6 @@ export function Hero() {
           La Galère
         </motion.h1>
 
-        {/* Decorative separator */}
         <motion.div
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}
@@ -139,7 +130,7 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4 }}
-        className="absolute bottom-20 left-1/2 -translate-x-1/2"
+        className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10"
         aria-hidden="true"
       >
         <motion.div

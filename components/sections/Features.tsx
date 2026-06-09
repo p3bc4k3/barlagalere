@@ -1,35 +1,44 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Wine, IceCream, Waves } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Waves } from "lucide-react";
 import { StaggerContainer, StaggerItem, FadeIn } from "@/components/animations/FadeIn";
+import { CocktailGlass } from "@/components/animations/CocktailGlass";
+import { IceCreamScoop } from "@/components/animations/IceCreamScoop";
 
 const pillars = [
   {
-    icon: Wine,
+    id: "cocktails",
     title: "Bar & Cocktails",
     description:
       "Des créations artisanales élaborées avec soin, inspirées par la Méditerranée. Herbes fraîches, agrumes du Sud, spiritueux de qualité — chaque verre est une invitation au voyage.",
-    color: "text-secondary",
-    bg: "bg-secondary/10",
   },
   {
-    icon: IceCream,
+    id: "glacier",
     title: "Glacier",
     description:
       "Coupes généreuses, sorbets frais, sundaes gourmands. La douceur glacée au bord de l'eau, pour se rafraîchir sans se presser sous le soleil de Valras.",
-    color: "text-primary",
-    bg: "bg-primary/10",
   },
   {
-    icon: Waves,
+    id: "mer",
     title: "Vue mer",
     description:
       "En terrasse face à la Méditerranée, les pieds dans le sable. La mer comme horizon, le soleil comme décor — l'endroit idéal pour savourer l'instant.",
-    color: "text-accent",
-    bg: "bg-accent/10",
   },
 ];
+
+function WavesIcon() {
+  const shouldReduce = useReducedMotion();
+  return (
+    <motion.div
+      className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center"
+      animate={shouldReduce ? {} : { rotate: [0, 5, -5, 0] }}
+      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <Waves size={22} className="text-accent" aria-hidden="true" />
+    </motion.div>
+  );
+}
 
 export function Features() {
   return (
@@ -48,32 +57,33 @@ export function Features() {
         </FadeIn>
 
         <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {pillars.map((pillar) => {
-            const Icon = pillar.icon;
-            return (
-              <StaggerItem key={pillar.title}>
-                <motion.div
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                  whileTap={{ scale: 0.98 }}
-                  className="h-full"
-                >
-                  <div className="rounded-2xl border border-border bg-card p-8 h-full transition-shadow duration-300 hover:shadow-lg hover:border-primary/40 cursor-default">
-                    <div
-                      className={`w-12 h-12 rounded-full ${pillar.bg} flex items-center justify-center mb-6`}
-                    >
-                      <Icon size={22} className={pillar.color} aria-hidden="true" />
-                    </div>
-                    <h3 className="font-heading text-xl font-semibold mb-3">
-                      {pillar.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {pillar.description}
-                    </p>
+          {pillars.map((pillar) => (
+            <StaggerItem key={pillar.id}>
+              <motion.div
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                whileTap={{ scale: 0.98 }}
+                className="h-full"
+              >
+                <div className="rounded-2xl border border-border bg-card p-8 h-full transition-shadow duration-300 hover:shadow-lg hover:border-primary/40 cursor-default">
+                  <div className="mb-6">
+                    {pillar.id === "cocktails" ? (
+                      <CocktailGlass />
+                    ) : pillar.id === "glacier" ? (
+                      <IceCreamScoop />
+                    ) : (
+                      <WavesIcon />
+                    )}
                   </div>
-                </motion.div>
-              </StaggerItem>
-            );
-          })}
+                  <h3 className="font-heading text-xl font-semibold mb-3">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {pillar.description}
+                  </p>
+                </div>
+              </motion.div>
+            </StaggerItem>
+          ))}
         </StaggerContainer>
       </div>
     </section>
